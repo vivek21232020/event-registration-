@@ -38,8 +38,9 @@ export default function Results() {
       return;
     }
 
-    // Look for registration
-    const registration = mockRegistrations.find((r) => r.regId === cleanId);
+    // Look for registration in localStorage or mock data
+    const allRegistrations = JSON.parse(localStorage.getItem('aura_registrations')) || mockRegistrations;
+    const registration = allRegistrations.find((r) => r.regId === cleanId);
     if (!registration) {
       setCertError('Registration ID not found. Try "REG-10492" or "REG-10511".');
       return;

@@ -8,9 +8,15 @@ export default function EventDiscovery() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
 
+  // Read events list from local storage or mock data
+  const allEvents = useMemo(() => {
+    const saved = localStorage.getItem('aura_events');
+    return saved ? JSON.parse(saved) : events;
+  }, []);
+
   // Filters calculation
   const filteredEvents = useMemo(() => {
-    return events.filter((event) => {
+    return allEvents.filter((event) => {
       const matchesSearch = 
         event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         event.description.toLowerCase().includes(searchQuery.toLowerCase()) ||

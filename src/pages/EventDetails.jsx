@@ -7,8 +7,9 @@ export default function EventDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   
-  // Find event
-  const event = events.find((e) => e.id === id);
+  // Find event from localStorage or mock data
+  const allEvents = JSON.parse(localStorage.getItem('aura_events')) || events;
+  const event = allEvents.find((e) => e.id === id);
 
   if (!event) {
     return (

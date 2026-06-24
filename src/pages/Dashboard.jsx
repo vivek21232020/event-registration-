@@ -7,8 +7,14 @@ export default function Dashboard() {
   const [activeTab, setActiveTab] = useState('overview'); // overview, events, registrations, schedule
   
   // Dashboard states
-  const [events, setEvents] = useState(initialEvents);
-  const [registrations, setRegistrations] = useState(initialRegistrations);
+  const [events, setEvents] = useState(() => {
+    const saved = localStorage.getItem('aura_events');
+    return saved ? JSON.parse(saved) : initialEvents;
+  });
+  const [registrations, setRegistrations] = useState(() => {
+    const saved = localStorage.getItem('aura_registrations');
+    return saved ? JSON.parse(saved) : initialRegistrations;
+  });
   
   // Modals state
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -87,7 +93,9 @@ export default function Dashboard() {
       image: 'https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?auto=format&fit=crop&w=800&q=80',
       coordinators: [{ name: 'Admin Designated', phone: '+91 99999 88888' }]
     };
-    setEvents([...events, newEvent]);
+    const updated = [...events, newEvent];
+    setEvents(updated);
+    localStorage.setItem('aura_events', JSON.stringify(updated));
     setIsAddModalOpen(false);
   };
 
@@ -108,11 +116,14 @@ export default function Dashboard() {
       return ev;
     });
     setEvents(updated);
+    localStorage.setItem('aura_events', JSON.stringify(updated));
     setIsEditModalOpen(false);
   };
 
   const handleDeleteEvent = () => {
-    setEvents(events.filter((ev) => ev.id !== currentEvent.id));
+    const updated = events.filter((ev) => ev.id !== currentEvent.id);
+    setEvents(updated);
+    localStorage.setItem('aura_events', JSON.stringify(updated));
     setIsDeleteModalOpen(false);
   };
 
@@ -125,6 +136,7 @@ export default function Dashboard() {
       return reg;
     });
     setRegistrations(updated);
+    localStorage.setItem('aura_registrations', JSON.stringify(updated));
   };
 
   return (

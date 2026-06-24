@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, School, Users, FileText, CheckCircle2, ChevronRight, ChevronLeft, Upload, Plus, Trash2, Calendar, Ticket, Download } from 'lucide-react';
-import { events } from '../data/eventsData';
+import { events, mockRegistrations } from '../data/eventsData';
 
 export default function Registration() {
   const [searchParams] = useSearchParams();
@@ -28,12 +28,14 @@ export default function Registration() {
     year: '3rd Year'
   });
 
-  const [selectedEventId, setSelectedEventId] = useState(eventIdParam || events[0].id);
+  const allEvents = JSON.parse(localStorage.getItem('aura_events')) || events;
+
+  const [selectedEventId, setSelectedEventId] = useState(eventIdParam || allEvents[0].id);
   const [teamName, setTeamName] = useState('');
   const [teamMembers, setTeamMembers] = useState([]); // Array of { name: '', email: '' }
 
   // Derive selected event details
-  const selectedEvent = events.find((e) => e.id === selectedEventId) || events[0];
+  const selectedEvent = allEvents.find((e) => e.id === selectedEventId) || allEvents[0];
   const isSolo = selectedEvent.maxTeamSize === 1;
 
   // Auto-fill or adjust team fields based on event selection
@@ -153,6 +155,26 @@ export default function Registration() {
     if (validateStep()) {
       const regId = 'REG-' + Math.floor(10000 + Math.random() * 90000);
       setGeneratedRegId(regId);
+
+      // Create new registration object
+      const newReg = {
+        regId,
+        name: personalDetails.name,
+        email: personalDetails.email,
+        phone: personalDetails.phone,
+        college: collegeDetails.collegeName,
+        eventName: selectedEvent.title,
+        eventCategory: selectedEvent.category,
+        teamName: isSolo ? 'Solo' : teamName,
+        date: new Date().toISOString().split('T')[0],
+        status: 'Pending'
+      };
+
+      // Save to localStorage
+      const currentRegs = JSON.parse(localStorage.getItem('aura_registrations')) || mockRegistrations;
+      const updatedRegs = [newReg, ...currentRegs];
+      localStorage.setItem('aura_registrations', JSON.stringify(updatedRegs));
+
       setStep(5);
     }
   };
@@ -437,7 +459,7 @@ export default function Registration() {
                     onChange={(e) => setSelectedEventId(e.target.value)}
                     className="w-full px-4 py-3.5 rounded-2xl glass-input text-slate-800 font-semibold shadow-sm"
                   >
-                    {events.map((e) => (
+                    {allEvents.map((e) => (
                       <option key={e.id} value={e.id}>
                         {e.title} ({e.category.toUpperCase()}) - Entry ₹{e.fee}
                       </option>
